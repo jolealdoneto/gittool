@@ -25,7 +25,7 @@ function getBody(url, cb) {
 }
 
 function getUpstreamAndRepo(cb) {
-    execute('git remote -v | grep upstream', function(stdout) {
+    execute('git remote -v | grep -E "^upstream"', function(stdout) {
         var reg = /.*github.com:([a-zA-Z0-9]+)\/([a-zA-Z0-9]+).git/gi,
             firstLine = stdout.split('/n');
 
