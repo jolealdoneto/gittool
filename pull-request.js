@@ -1,9 +1,11 @@
 exports.execute = function(args) {
     var common = require('./common.js'),
         targetRepo = args[0],
-        shouldMerge = args.length > 1 && args[1] == 'true' || true,
+        shouldMerge = (args.length > 1 ? args[1] == 'true' : false),
         pullRequestBase = 'hub pull-request -b {{upstream}}:{{targetRepo}} -i {{issueNumber}}'.replace('{{targetRepo}}', targetRepo),
         pushBase = 'git push origin {{featureBranch}}';
+
+    console.log('Will merge? ' + shouldMerge);
 
     common.getUpstreamAndRepo(function(gitinfo) {
         common.execute('git branch | grep \\* | cut -d\' \' -f2', function(featureBranch) {
@@ -11,7 +13,6 @@ exports.execute = function(args) {
                 num = reg.exec(featureBranch);
 
             featureBranch = featureBranch.replace(/\n/g, '');
-
             if (num != null) {
                 common.execute(pushBase.replace('{{featureBranch}}', featureBranch), function() {
                     num = num[1];
@@ -24,6 +25,9 @@ exports.execute = function(args) {
                             common.execute(comm, function(out) {
                                 console.log("done.");
                             });
+                        }
+                        else {
+                            console.log("done.");
                         }
                     });
                 });
