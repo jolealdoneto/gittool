@@ -1,6 +1,7 @@
 exports.execute = function(args) {
     var common = require('./common.js'),
         targetRepo = args[0],
+        shouldMerge = args.length > 1 && args[1] == 'true' || true,
         pullRequestBase = 'hub pull-request -b {{upstream}}:{{targetRepo}} -i {{issueNumber}}'.replace('{{targetRepo}}', targetRepo),
         pushBase = 'git push origin {{featureBranch}}';
 
@@ -16,12 +17,14 @@ exports.execute = function(args) {
                     num = num[1];
                     common.execute(pullRequestBase.replace('{{upstream}}', gitinfo.upstream).replace('{{issueNumber}}', num), function(out) {
                         console.log(out);
-                        var comm = 'git checkout develop; git merge {{featureBranch}}; git branch -D {{featureBranch}}'.replace(/{{featureBranch}}/g, featureBranch).replace(/\n/g, '');
-                        console.log(comm);
+                        if (shouldMerge) {
+                            var comm = 'git checkout develop && git merge {{featureBranch}} && git branch -D {{featureBranch}}'.replace(/{{featureBranch}}/g, featureBranch).replace(/\n/g, '');
+                            console.log(comm);
 
-                        common.execute(comm, function(out) {
-                            console.log("done.");
-                        });
+                            common.execute(comm, function(out) {
+                                console.log("done.");
+                            });
+                        }
                     });
                 });
             }
